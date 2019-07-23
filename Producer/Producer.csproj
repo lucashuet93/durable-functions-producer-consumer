@@ -4,7 +4,13 @@
     <AzureFunctionsVersion>v2</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="GcpPubSub\authfile\gcpPubSubCreds.json" />
     <None Remove="messagecontent.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GcpPubSub\authfile\gcpPubSubCreds.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="messagecontent.txt" />
