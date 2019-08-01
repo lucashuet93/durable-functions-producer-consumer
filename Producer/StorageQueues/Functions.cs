@@ -144,12 +144,12 @@ namespace Producer.StorageQueues
         {
             // create a guid for a unique file name
             Guid guid = Guid.NewGuid();
-            string ftpFileLocation = $"{Environment.GetEnvironmentVariable("ftpServerBaseUrl")}{guid}.txt";
+            string ftpFileLocation = $"{Environment.GetEnvironmentVariable("FtpServerBaseUrl")}{guid}.txt";
 
             // get the object used to communicate with the server.
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpFileLocation);
             request.Method = WebRequestMethods.Ftp.UploadFile;
-            request.Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("ftpUsername").Normalize(), Environment.GetEnvironmentVariable("ftpPassword").Normalize());
+            request.Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("FtpUsername").Normalize(), Environment.GetEnvironmentVariable("FtpPassword").Normalize());
 
             // convert contents to byte.
             byte[] fileContents = Encoding.ASCII.GetBytes(textContent);

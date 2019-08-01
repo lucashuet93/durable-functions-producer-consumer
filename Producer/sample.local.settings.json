@@ -7,9 +7,9 @@
     "EventHubName": "sample",
     "StorageQueueConnection": "DefaultEndpointsProtocol=https;AccountName=...",
     "StorageQueueName": "sample",
-    "ftpServerBaseUrl": "ftp://000.00.00.00/",
-    "ftpUsername": "username",
-    "ftpPassword": "password",
+    "FtpServerBaseUrl": "ftp://000.00.00.00/",
+    "FtpUsername": "username",
+    "FtpPassword": "password",
 
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
