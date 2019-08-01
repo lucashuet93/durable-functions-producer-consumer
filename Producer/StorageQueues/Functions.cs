@@ -21,6 +21,7 @@ namespace Producer.StorageQueues
         {
             var inputObject = JObject.Parse(await request.Content.ReadAsStringAsync());
             var numberOfMessages = inputObject.Value<int>(@"NumberOfMessages");
+            var messageContent = inputObject.Value<string>(@"MessageContent");
 
             var workTime = -1;
             if (inputObject.TryGetValue(@"WorkTime", out var workTimeVal))
@@ -30,7 +31,7 @@ namespace Producer.StorageQueues
 
             var testRunId = Guid.NewGuid().ToString();
             var orchId = await client.StartNewAsync(nameof(GenerateMessagesForStorageQueue),
-                    (numberOfMessages, testRunId, workTime));
+                    (numberOfMessages, messageContent, testRunId, workTime));
 
             log.LogTrace($@"Kicked off {numberOfMessages} message creation...");
 
@@ -42,14 +43,14 @@ namespace Producer.StorageQueues
             [OrchestrationTrigger]DurableOrchestrationContext ctx,
             ILogger log)
         {
-            var req = ctx.GetInput<(int numOfMessages, string testRunId, int workTime)>();
-
+            var req = ctx.GetInput<(int numOfMessages, string messageContent, string testRunId, int workTime)>();
+            string batchCorrelationId = CreateCorrelationId();
             var activities = Enumerable.Empty<Task<bool>>().ToList();
             for (var i = 0; i < req.numOfMessages; i++)
             {
                 try
                 {
-                    activities.Add(ctx.CallActivityAsync<bool>(nameof(PostMessageToStorageQueue), (i, req.testRunId, req.workTime)));
+                    activities.Add(ctx.CallActivityAsync<bool>(nameof(PostMessageToStorageQueue), (i, req.messageContent, batchCorrelationId, req.testRunId, req.workTime)));
                 }
                 catch (Exception ex)
                 {
@@ -64,26 +65,20 @@ namespace Producer.StorageQueues
         }
 
         private const int MAX_RETRY_ATTEMPTS = 10;
-        private static readonly Lazy<string> _messageContent = new Lazy<string>(() =>
-        {
-            using (var sr = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream($@"Producer.messagecontent.txt")))
-            {
-                return sr.ReadToEnd();
-            }
-        });
 
         [FunctionName(nameof(PostMessageToStorageQueue))]
         public static async Task<bool> PostMessageToStorageQueue([ActivityTrigger]DurableActivityContext ctx,
             [Queue("%StorageQueueName%", Connection = @"StorageQueueConnection")]IAsyncCollector<JObject> queueMessages,
             ILogger log)
         {
-            var msgDetails = ctx.GetInput<(int id, string runId, int workTime)>();
+            var msgDetails = ctx.GetInput<(int id, string messageContent, string batchCorrelationId, string runId, int workTime)>();
             var retryCount = 0;
             var retry = false;
 
             var messageToPost = JObject.FromObject(new
             {
-                Content = _messageContent.Value,
+                Content = msgDetails.messageContent,
+                CorrelationId = msgDetails.batchCorrelationId,
                 EnqueueTimeUtc = DateTime.UtcNow,
                 MessageId = msgDetails.id,
                 TestRunId = msgDetails.runId
@@ -116,7 +111,7 @@ namespace Producer.StorageQueues
                 else
                 {
 #if DEBUG
-                    log.LogTrace($@"Posted message {messageToPost.Value<int>(@"MessageId")} (Size: {_messageContent.Value.Length} bytes) in {retryCount} attempt(s)");
+                    log.LogTrace($@"Posted message {messageToPost.Value<int>(@"MessageId")} (Size: {msgDetails.messageContent.Length} bytes) in {retryCount} attempt(s)");
 #else
                 log.LogTrace($@"Posted message in {retryCount} attempt(s)");
 #endif
@@ -124,6 +119,20 @@ namespace Producer.StorageQueues
             } while (retry);
 
             return true;
+        }
+
+        static string CreateCorrelationId()
+        {
+            // Instantiate random number generator 
+            Random rand = new Random();
+            // Instantiate an array of byte 
+            byte[] byteArray = new Byte[24];
+            rand.NextBytes(byteArray);
+
+            string correlationId = Convert.ToBase64String(byteArray);
+            Console.WriteLine(correlationId);
+            Console.WriteLine(correlationId.Length);
+            return correlationId;
         }
     }
 }
