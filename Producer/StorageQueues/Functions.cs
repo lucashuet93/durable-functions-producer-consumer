@@ -1,8 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -75,9 +76,13 @@ namespace Producer.StorageQueues
             var retryCount = 0;
             var retry = false;
 
+            // create new file on FTP server with message content as file contents
+            string ftpFileLocation = CreateFile(msgDetails.messageContent);
+
+            // create queue message with correlationId and reference to newly created FTP file location as the content property
             var messageToPost = JObject.FromObject(new
             {
-                Content = msgDetails.messageContent,
+                Content = ftpFileLocation,
                 CorrelationId = msgDetails.batchCorrelationId,
                 EnqueueTimeUtc = DateTime.UtcNow,
                 MessageId = msgDetails.id,
@@ -133,6 +138,36 @@ namespace Producer.StorageQueues
             Console.WriteLine(correlationId);
             Console.WriteLine(correlationId.Length);
             return correlationId;
+        }
+
+        static string CreateFile(string textContent)
+        {
+            // create a guid for a unique file name
+            Guid guid = Guid.NewGuid();
+            string ftpFileLocation = $"{Environment.GetEnvironmentVariable("ftpServerBaseUrl")}{guid}.txt";
+
+            // get the object used to communicate with the server.
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpFileLocation);
+            request.Method = WebRequestMethods.Ftp.UploadFile;
+            request.Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("ftpUsername").Normalize(), Environment.GetEnvironmentVariable("ftpPassword").Normalize());
+
+            // convert contents to byte.
+            byte[] fileContents = Encoding.ASCII.GetBytes(textContent);
+
+            request.ContentLength = fileContents.Length;
+
+            using (Stream requestStream = request.GetRequestStream())
+            {
+                requestStream.Write(fileContents, 0, fileContents.Length);
+            }
+
+            using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+            {
+                Console.WriteLine($"Upload File Complete, status {response.StatusDescription}");
+            }
+
+            // return the file location so it can be written as the content in the azure queue message
+            return ftpFileLocation;
         }
     }
 }
