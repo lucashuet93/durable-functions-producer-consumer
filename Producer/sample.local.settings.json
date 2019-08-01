@@ -8,6 +8,7 @@
     "StorageQueueConnection": "DefaultEndpointsProtocol=https;AccountName=...",
     "StorageQueueName": "sample",
     "FtpServerBaseUrl": "ftp://000.00.00.00/",
+    "FtpServerFolderName": "folder",
     "FtpUsername": "username",
     "FtpPassword": "password",
 

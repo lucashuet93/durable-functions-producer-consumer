@@ -144,7 +144,7 @@ namespace Producer.StorageQueues
         {
             // create a guid for a unique file name
             Guid guid = Guid.NewGuid();
-            string ftpFileLocation = $"{Environment.GetEnvironmentVariable("FtpServerBaseUrl")}{guid}.txt";
+            string ftpFileLocation = $"{Environment.GetEnvironmentVariable("FtpServerBaseUrl")}{Environment.GetEnvironmentVariable("FtpServerFolderName")}/{guid}.txt";
 
             // get the object used to communicate with the server.
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create(ftpFileLocation);
