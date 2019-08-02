@@ -45,11 +45,11 @@ else {
      $dexDeploymentName = $deploymentName + "-dexdataconnection"
 }
 
-# Register required RPs
-Write-Host "Registering resource providers..."
-foreach ($resourceProvider in @("microsoft.storage", "microsoft.web", "microsoft.servicebus", "microsoft.kusto", "microsoft.eventhub")) {
-    Register-AzResourceProvider -ProviderNamespace $resourceProvider >$null
-}
+# # Register required RPs
+# Write-Host "Registering resource providers..."
+# foreach ($resourceProvider in @("microsoft.storage", "microsoft.web", "microsoft.servicebus", "microsoft.kusto", "microsoft.eventhub")) {
+#     Register-AzResourceProvider -ProviderNamespace $resourceProvider >$null
+# }
 
 #Create or check for existing resource group
 $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
