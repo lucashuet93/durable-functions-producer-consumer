@@ -1,8 +1,8 @@
 ## Original Repository
 
-This repository is a fork of [durable-functions-producer-consumer](https://github.com/Azure-Samples/durable-functions-producer-consumer) Azure Sample.
+This repository is a fork of [durable-functions-producer-consumer](https://github.com/Azure-Samples/durable-functions-producer-consumer) Azure Sample. Refer to the Azure Sample repository for usage and deployment instructions.
 
-## Overview
+## Fork Changes Overview
 
 A few changes have been made to the Storage Queue producer code in the [Functions.cs](https://github.com/lucashuet93/durable-functions-producer-consumer/blob/master/Producer/StorageQueues/Functions.cs) file. 
 
