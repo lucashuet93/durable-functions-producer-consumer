@@ -1,6 +1,6 @@
 ## Original Repository
 
-This repository is a fork of [durable-functions-producer-consumer](https://github.com/Azure-Samples/durable-functions-producer-consumer) Azure Sample. Refer to the Azure Sample repository for usage and deployment instructions.
+This repository is a fork of [durable-functions-producer-consumer](https://github.com/Azure-Samples/durable-functions-producer-consumer) Azure Sample. Refer to the Azure Samples repository for usage and deployment instructions.
 
 ## Fork Changes Overview
 
