@@ -11,7 +11,7 @@ A few changes have been made to the Storage Queue producer code in the [Function
 ```
 {
   "NumberOfMessages": 3,
-	"MessageContent": "test message"
+  "MessageContent": "test message"
 }
 ```
 
